@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    ignore:
+      # Major bumps of the dev tooling (eve, typescript, @types/node) are breaking
+      # changes that need a deliberate migration, not an auto-bump. Defer ALL
+      # majors to a human; patch/minor (incl. security fixes) still flow.
+      # (Honored by Dependabot security updates too.)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
