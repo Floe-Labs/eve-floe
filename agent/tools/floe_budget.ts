@@ -15,12 +15,13 @@ export default defineTool({
   async execute() {
     const token = process.env.FLOE_AGENT_KEY?.trim().replace(/^(["'])(.*)\1$/, "$2");
     if (!token) throw new Error("FLOE_AGENT_KEY is not set.");
-    const base = (
-      process.env.FLOE_API_BASE_URL?.trim() || "https://credit-api.floelabs.xyz"
-    ).replace(/\/$/, "");
 
-    const res = await fetch(`${base}/v1/agents/credit-remaining`, {
+    // Hardcoded host: the agent key must only ever go to Floe's API. No env
+    // override — that would be a bearer-token-exfiltration path and contradicts
+    // SECURITY.md (all Floe traffic → credit-api.floelabs.xyz).
+    const res = await fetch("https://credit-api.floelabs.xyz/v1/agents/credit-remaining", {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(10_000), // don't let a hang stall an unattended run
     });
     if (!res.ok) throw new Error(`Floe budget check failed: HTTP ${res.status}`);
 
@@ -29,11 +30,22 @@ export default defineTool({
       sessionSpendRemaining?: string | null;
       utilizationBps?: number;
     };
-    const headroom = Number(b.headroomToAutoBorrow ?? "0") / 1e6;
-    const session =
-      b.sessionSpendRemaining == null ? Infinity : Number(b.sessionSpendRemaining) / 1e6;
-    const remainingUsd = Math.min(headroom, session);
+
+    // Validate before trusting — bad upstream values must not silently become NaN.
+    const usd = (v: string | null | undefined, field: string): number | null => {
+      if (v == null) return null;
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid ${field} from Floe`);
+      return n / 1e6;
+    };
+    const headroom = usd(b.headroomToAutoBorrow ?? "0", "headroomToAutoBorrow") ?? 0;
+    const session = usd(b.sessionSpendRemaining, "sessionSpendRemaining");
+    const remainingUsd = session == null ? headroom : Math.min(headroom, session);
+
     const usedBps = b.utilizationBps ?? 0;
+    if (!Number.isFinite(usedBps) || usedBps < 0 || usedBps > 10000) {
+      throw new Error("Invalid utilizationBps from Floe");
+    }
 
     return {
       remaining_usd: Number(remainingUsd.toFixed(6)),

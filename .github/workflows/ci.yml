@@ -24,6 +24,6 @@ jobs:
         with:
           node-version: '24'
       # --ignore-scripts: we only need types to typecheck; skip any postinstall.
-      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Typecheck
         run: npm run typecheck
