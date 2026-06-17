@@ -18,7 +18,7 @@ export default defineMcpClientConnection({
     "Floe: pay any x402 API from a capped prepaid budget, and read the agent's spend budget/advisory.",
   auth: {
     getToken: async () => {
-      const token = process.env.FLOE_AGENT_KEY;
+      const token = process.env.FLOE_AGENT_KEY?.trim(); // trim copy-paste whitespace
       if (!token) {
         throw new Error(
           "FLOE_AGENT_KEY is not set. Create an agent key (and a budget cap) at " +
