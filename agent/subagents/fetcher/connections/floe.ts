@@ -11,7 +11,7 @@ export default defineMcpClientConnection({
     "Floe: pay x402 APIs from this subagent's capped budget, and read its spend advisory.",
   auth: {
     getToken: async () => {
-      const token = process.env.FLOE_FETCHER_KEY?.trim(); // trim copy-paste whitespace
+      const token = process.env.FLOE_FETCHER_KEY?.trim().replace(/^(["'])(.*)\1$/, "$2"); // trim + strip surrounding quotes
       if (!token) {
         throw new Error(
           "FLOE_FETCHER_KEY is not set. Create a second agent key (with its own cap) " +
