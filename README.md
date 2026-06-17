@@ -11,11 +11,7 @@ cut off.
 > APIs). Vercel **AI Gateway** governs the **model plane**. Together = complete
 > agent spend control.
 
-> **Demo GIF coming** — a capped `fetcher` subagent paying x402 APIs and stopping
-> at its budget. Recording steps: [`docs/demo.gif.PLACEHOLDER.txt`](docs/demo.gif.PLACEHOLDER.txt).
-<!-- Once recorded, restore the embed:
-![eve-floe demo — a capped fetcher subagent paying x402 APIs and stopping at its budget](docs/demo.gif)
--->
+![eve-floe — a capped fetcher subagent paying x402 APIs and stopping at its budget](docs/demo.gif)
 
 ## What's in here
 
