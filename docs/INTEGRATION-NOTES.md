@@ -42,3 +42,18 @@ export default defineMcpClientConnection({
 
 ## Open follow-up (before U4)
 Confirm what `ctx.session` actually contains at runtime (is `turn`/lineage stable across a durable-workflow replay?). Until then, U4 idempotency is best-effort, not guaranteed.
+
+## Decisions (ratified)
+
+- **U4 — idempotency: document the gap, don't block.** Ship the operator `near_limit`
+  alert (the load-bearing value). Durable replays shouldn't re-pay (Vercel Workflow
+  SDK journals step results — assumption, not doc-confirmed); the proxy dedups
+  retries within its own window; pass any stable `ctx.session` id as a best-effort
+  `Idempotency-Key`. A deterministic per-call key is a fast-follow *only if* a real
+  double-charge is observed. No runtime micro-spike gating the unit.
+- **Option (b) — LLM-plane metering: dropped from the Eve play (not deferred).**
+  Eve routes models through Vercel **AI Gateway**; proxying LLM spend through Floe
+  would compete with Vercel on its own turf and is brittle (no `baseURL` hook).
+  Positioning instead: **Floe governs the vendor/API plane; AI Gateway owns the
+  model plane; together = complete spend control.** v1 = (a) hard cap on the tool
+  plane + (c) advisory.
