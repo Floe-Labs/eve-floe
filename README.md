@@ -11,7 +11,11 @@ cut off.
 > APIs). Vercel **AI Gateway** governs the **model plane**. Together = complete
 > agent spend control.
 
+> **Demo GIF coming** — a capped `fetcher` subagent paying x402 APIs and stopping
+> at its budget. Recording steps: [`docs/demo.gif.PLACEHOLDER.txt`](docs/demo.gif.PLACEHOLDER.txt).
+<!-- Once recorded, restore the embed:
 ![eve-floe demo — a capped fetcher subagent paying x402 APIs and stopping at its budget](docs/demo.gif)
+-->
 
 ## What's in here
 
@@ -23,7 +27,7 @@ A runnable Eve agent with spend control built in:
   developer-wide cap are enforced on every payment.
 - Each agent holds **one** secret (a Floe key) — never a provider or vendor key.
 
-```
+```text
 agent/
 ├── agent.ts                  # lead agent
 ├── instructions.md
@@ -35,6 +39,8 @@ agent/
 ```
 
 ## Quickstart
+
+**Prereq:** Node.js **24+** (required by `eve`).
 
 ```bash
 git clone https://github.com/Floe-Labs/eve-floe.git
