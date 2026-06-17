@@ -11,7 +11,7 @@ we don't code against guessed Eve internals.
 | **(i) MCP connection + auth** | 🟢 Green | Eve `defineMcpClientConnection({ url, auth: { getToken } })` sends `Authorization: Bearer <token>`; `getToken` reads from env/secrets. Floe's MCP is live at `https://mcp.floelabs.xyz/mcp` — **Streamable HTTP, Bearer-authed** (POST→401 unauth; `Mcp-Session-Id`/`Authorization` in CORS). Eve requires Streamable HTTP or SSE → matches. **Use the remote MCP, not the stdio npm package.** |
 | **(ii) per-subagent keys** | 🟢 Green | Declared subagents live in `agent/subagents/<id>/` and **inherit nothing** from the root — each owns its `connections/`, tools, skills, sandbox. So each subagent gets its own `connections/floe.ts` reading its own key env. Parallel ("fan out") is supported. Mapping **A** (per-subagent Floe key) is fully achievable. |
 | **(iii) durable step/run id in tool ctx** | 🟡 Amber | `execute(input, ctx)` — `ctx` exposes `session` (turn, auth, parent lineage), `getSandbox()`, `getSkill()`. **No explicit run/step/workflow id documented.** Idempotency keyed on a stable id (U4) must come from `ctx.session` (turn/lineage) **and** be verified to survive a durable replay — otherwise cross-replay idempotency is a documented gap. |
-| **(iv) custom model base URL** | 🔴 Red (simple path) | `model` is a gateway string (`"anthropic/claude-opus-4.8"`) **or** a provider-authored `LanguageModel` object. **No documented `baseURL`.** Option (b) full-LLM metering via Floe's `/v1/llm` is **not** available through the model-id string. *Maybe* possible by passing a custom AI-SDK provider object (`createOpenAI({ baseURL })(...)`) as `model` — unverified hypothesis, kept as fast-follow. |
+| **(iv) custom model base URL** | 🔴 Red (simple path) | `model` is a gateway string (`"anthropic/claude-opus-4.8"`) **or** a provider-authored `LanguageModel` object. **No documented `baseURL`.** Option (b) full-LLM metering via Floe's `/v1/llm` is **not** available through the model-id string. *Maybe* possible by passing a custom AI-SDK provider object (`createOpenAI({ baseURL })(...)`) as `model` — unverified, and **not pursued** (see Decisions: option (b) is dropped). |
 
 ## Verified config (what U1/U2 will use)
 
@@ -23,25 +23,29 @@ export default defineMcpClientConnection({
   url: "https://mcp.floelabs.xyz/mcp",            // Streamable HTTP, verified live
   description: "Floe: pay any x402 API and read the spend budget/advisory.",
   auth: {
-    getToken: async () => ({ token: process.env.FLOE_AGENT_KEY! }), // the ONE secret
+    getToken: async () => {
+      const token = process.env.FLOE_AGENT_KEY;
+      if (!token) throw new Error("Missing FLOE_AGENT_KEY");
+      return { token };
+    }, // the one secret for this (sub)agent
   },
 });
 ```
 
-- Agent holds **one** secret: `FLOE_AGENT_KEY` (`floe_…`). No provider/vendor keys.
+- Each **(sub)agent** holds **one** secret: `FLOE_AGENT_KEY` (`floe_…`) — its own
+  key per subagent (mapping A). No provider/vendor keys.
 - Tools reach Floe **only** through `mcp.floelabs.xyz` → `credit-api.floelabs.xyz`.
 
 ## Impact on the plan
 
+(See **Decisions (ratified)** below — that section is the source of truth where it differs.)
+
 - **U1 (MCP connection):** 🟢 proceed — target `https://mcp.floelabs.xyz/mcp` with `getToken`.
 - **U2 (template + per-subagent caps):** 🟢 proceed — mapping A confirmed (per-subagent `connections/floe.ts` + per-subagent key env).
 - **U3 (budget-aware skill + advisory):** 🟢 proceed — skills supported; advisory read via the MCP tool.
-- **U4 (replay-safe metering + alert):** 🟡 **split.** Operator `near_limit` alert (Floe webhook) is green. Idempotent metering depends on a stable id from `ctx.session` surviving replay — **needs a follow-up micro-spike**; if it doesn't, ship the alert + document the cross-replay-idempotency limitation (the x402 proxy still dedups within its own window).
+- **U4 (replay-safe metering + alert):** 🟡 **split.** Operator `near_limit` alert is green. Idempotency is **document-the-gap, no micro-spike** (see Decisions) — replays shouldn't re-pay, the proxy dedups retries in its window, best-effort `Idempotency-Key` from `ctx.session`.
 - **U5 (defineTool):** 🟢 only if the raw MCP path is clumsy; `ctx` (session/sandbox/skill) + `process.env` available.
-- **Option (b) LLM metering:** deferred. Concrete hypothesis to test later: pass a custom-baseURL AI-SDK provider object as `model`.
-
-## Open follow-up (before U4)
-Confirm what `ctx.session` actually contains at runtime (is `turn`/lineage stable across a durable-workflow replay?). Until then, U4 idempotency is best-effort, not guaranteed.
+- **Option (b) LLM metering:** **dropped** from the Eve play (see Decisions) — AI Gateway owns the model plane; Floe complements it on the vendor plane.
 
 ## Decisions (ratified)
 
