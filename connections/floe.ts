@@ -18,9 +18,10 @@ export default defineMcpClientConnection({
     "Floe: pay any x402 API from a capped prepaid budget, and read the agent's spend budget/advisory.",
   auth: {
     getToken: async () => {
-      // .trim() so a copy-pasted key with trailing whitespace/newline doesn't
-      // become a silently invalid Bearer token. Whitespace-only also fails below.
-      const token = process.env.FLOE_AGENT_KEY?.trim();
+      // Clean the env value: trim whitespace AND strip one pair of surrounding
+      // quotes. A key pasted into a dashboard field (e.g. Vercel) as "floe_..."
+      // keeps the quotes, which would make the Bearer token silently invalid.
+      const token = process.env.FLOE_AGENT_KEY?.trim().replace(/^(["'])(.*)\1$/, "$2");
       if (!token) {
         throw new Error(
           "FLOE_AGENT_KEY is not set. Create an agent key (and a budget cap) at " +
