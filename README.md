@@ -78,6 +78,14 @@ This caps what your agent **pays vendors/APIs** (the x402/tool plane). Your
 **model** spend is governed by Vercel **AI Gateway**, not Floe — the two are
 complementary. We don't claim to cap model tokens.
 
+## Floe governed-agent starters
+
+One of three clonable templates that ship Floe spend-governance by default:
+
+- [floe-vercel-ai-starter](https://github.com/Floe-Labs/floe-vercel-ai-starter) — Vercel AI SDK agent, deploy to Vercel
+- [floe-crewai-starter](https://github.com/Floe-Labs/floe-crewai-starter) — CrewAI crew, run on Replit
+- [eve-floe](https://github.com/Floe-Labs/eve-floe) — Vercel Eve agent with per-subagent budgets (you are here)
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
