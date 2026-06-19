@@ -1,14 +1,32 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
+  # Keep SHA-pinned actions current — low noise, one grouped PR weekly.
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: "weekly"
+      day: "thursday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # npm: heavily limited — one grouped PR monthly, patch + security only. Ignore
+  # majors AND minors (for 0.x deps like `eve`, a minor bump is effectively
+  # breaking). npm security updates still flow regardless of this schedule.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      npm:
+        patterns:
+          - "*"
     ignore:
-      # Major bumps of the dev tooling (eve, typescript, @types/node) are breaking
-      # changes that need a deliberate migration, not an auto-bump. Defer ALL
-      # majors to a human; patch/minor (incl. security fixes) still flow.
-      # (Honored by Dependabot security updates too.)
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
