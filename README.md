@@ -1,5 +1,8 @@
 # eve-floe — spend controls for Vercel Eve agents
 
+[![CI](https://github.com/Floe-Labs/eve-floe/actions/workflows/ci.yml/badge.svg)](https://github.com/Floe-Labs/eve-floe/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 **Give your [Eve](https://eve.dev) agent a budget it can't blow past.** Eve agents
 are autonomous, durable, and run unattended — Vercel's own launch cites a lead
 agent that costs **$5,000/yr to run**. This template wires an Eve agent to
