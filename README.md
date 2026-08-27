@@ -6,7 +6,7 @@
 **Give your [Eve](https://eve.dev) agent a budget it can't blow past.** Eve agents
 are autonomous, durable, and run unattended — Vercel's own launch cites a lead
 agent that costs **$5,000/yr to run**. This template wires an Eve agent to
-[Floe](https://floelabs.xyz) so every dollar it pays for an API is **hard-capped
+[Floe](https://floefinance.com) so every dollar it pays for an API is **hard-capped
 server-side**, with the agent tapering as it nears the limit instead of getting
 cut off.
 
