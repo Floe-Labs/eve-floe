@@ -1,14 +1,14 @@
-# eve-floe — spend controls for Vercel Eve agents
+# eve-floe — what your Eve agent's API spend really costs
 
 [![CI](https://github.com/Floe-Labs/eve-floe/actions/workflows/ci.yml/badge.svg)](https://github.com/Floe-Labs/eve-floe/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Give your [Eve](https://eve.dev) agent a budget it can't blow past.** Eve agents
+**Know what every API call your [Eve](https://eve.dev) agent makes actually costs.** Eve agents
 are autonomous, durable, and run unattended — Vercel's own launch cites a lead
 agent that costs **$5,000/yr to run**. This template wires an Eve agent to
-[Floe](https://floefinance.com) so every dollar it pays for an API is **hard-capped
-server-side**, with the agent tapering as it nears the limit instead of getting
-cut off.
+[Floe](https://floefinance.com) so every x402 call it pays for is metered on one
+ledger — and **hard-capped server-side**, with the agent tapering as it nears the
+limit instead of getting cut off.
 
 > Floe governs the **vendor/API plane** (what your agent *pays* — 2,000+ x402
 > APIs). Vercel **AI Gateway** governs the **model plane**. Together = complete
